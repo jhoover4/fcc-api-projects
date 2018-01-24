@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% block title %}Request Header API{% endblock %}
+
+{% block content %}
+<pre style="word-wrap: break-word; white-space: pre-wrap;">
+</pre>
+<script>
+function getClientInfo(){
+  const userAgentInfo = navigator.userAgent;
+
+  const reSoftware = /\(.*?\)/;
+  const reIpaddress = /[0-9]{2}\.[0-9]{1}\.[0-9]{4}.* /;
+
+
+  let browserParser = {
+    "ipaddress": reIpaddress.exec(userAgentInfo)[0].trim(),
+    "language": navigator.language,
+    "software": reSoftware.exec(userAgentInfo)[0].replace('\(', '').replace('\)', '')
+  }
+  console.log(browserParser)
+  return JSON.stringify(browserParser)
+}
+window.onload = function(){
+  document.getElementsByTagName('pre')[0].textContent = getClientInfo();
+}
+</script>
+{% endblock %}
