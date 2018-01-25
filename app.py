@@ -1,7 +1,8 @@
 import json
+import re
 from datetime import datetime
 
-from flask import Flask, g, render_template, request
+from flask import Flask, g, render_template, request, redirect
 
 import models
 
@@ -60,10 +61,18 @@ def time_api(timestamp):
 def request_header_api():
 	return render_template('request-parse.html')
 
-def get_url(long_url):
+
+# begin short_url routes and functions. Should probably move this to new file/folder at some point
+
+def get_long_url(long_url):
 	try:
-		a = models.Urls.get(models.Urls.original_url == long_url)
-		return a
+		return models.Urls.get(models.Urls.original_url == long_url)
+	except models.DoesNotExist:
+		return None
+
+def get_short_url(short_url):
+	try:
+		return models.Urls.get(models.Urls.shortened_url == short_url)
 	except models.DoesNotExist:
 		return None
 
@@ -73,15 +82,23 @@ def create_url(long_url):
 
 	return new_url_entry.shortened_url
 
+def check_url(long_url):
+	result = re.match('^(https?:\/\/)?(www\.)?.*\..*', long_url)
+
+	return result != None
+
 @app.route('/short-url/<long_url>')
 def url_shortener(long_url):
 	short_url = ''
 
-	if get_url(long_url) == None:
+	if check_url(long_url) == False:
+		return 'Please provide a valid url.'
+
+	if get_long_url(long_url) == None:
 		short_url = create_url(long_url)
 	else:
-		data_obj = get_url(long_url)
-		short_url = data_obj._data['shortened_url']
+		url_obj = get_long_url(long_url)
+		short_url = url_obj._data['shortened_url']
 
 	url_dict = {
 		 "original_url": long_url,
@@ -90,9 +107,16 @@ def url_shortener(long_url):
 
 	return render_template('url-shortener.html', url_data=json.dumps(url_dict))
 
-@app.route('/short-url/r/<long_url>')
-def redirect_url():
-	pass
+@app.route('/r/<short_url>')
+def redirect_short_url(short_url):
+	url_obj = get_short_url(short_url)
+
+	if url_obj == None:
+		return "Your short url does not exist. Please <a 'href=/short-url/'>create one</a>."
+	else:
+		redirect_url = 'http://' + url_obj._data['original_url']
+
+		return redirect(redirect_url, code=302)
 
 if __name__ == '__main__':
 	models.initialize()
