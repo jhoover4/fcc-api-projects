@@ -1,15 +1,20 @@
-import json
-import re
+import json, re, os
 from datetime import datetime
 
-from flask import Flask, g, render_template, request, redirect
+from flask import Flask, g, render_template, request, redirect, flash
+from werkzeug.utils import secure_filename
 
 import models
 
 DEBUG = True
+ALLOWED_FILE_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+UPLOAD_FOLDER = '/uploads'
+SECRET = 'ASDF!@#$5%$@#$%fasdf'
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+app.secret_key = SECRET
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.before_request
 def before_request():
@@ -117,6 +122,39 @@ def redirect_short_url(short_url):
 		redirect_url = 'http://' + url_obj._data['original_url']
 
 		return redirect(redirect_url, code=302)
+
+# begin file metadata routes and functions. Should probably move this to new file/folder at some point
+
+def allowed_file(filename):
+	return '.' in filename and \
+		   filename.rsplit('.', 1)[1].lower() in ALLOWED_FILE_EXTENSIONS
+
+@app.route('/file-metadata/', methods=['GET', 'POST'])
+def upload_file():
+	if request.method == 'POST':
+		# check if the post request has the file part
+		if 'file' not in request.files:
+			flash('No file detected!')
+			return redirect(request.url)
+		file = request.files['file']
+
+		# if user does not select file, submit a empty part without filename
+		if file.filename == '':
+			flash('No selected file')
+			return redirect(request.url)
+			
+		if file and allowed_file(file.filename):
+			filename = secure_filename(file.filename)
+			file_path = app.root_path + '\\uploads\\' + filename
+			file.save(file_path)
+
+			statinfo = os.stat(file_path)
+			file_size = {'size': statinfo.st_size }
+
+			os.remove(file_path)
+
+			return json.dumps(file_size)
+	return render_template('file-metadata.html')
 
 if __name__ == '__main__':
 	models.initialize()

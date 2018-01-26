@@ -18,7 +18,6 @@ class Urls(Model):
         database = DATABASE
 
 def initialize():
-    import pdb; pdb.set_trace
     DATABASE.connect()
     DATABASE.create_tables([Urls], safe=True)
     DATABASE.close()

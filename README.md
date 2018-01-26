@@ -12,3 +12,4 @@ Heroku app: https://jh-fcc-backend-apis.herokuapp.com/
  - Timestamp Microservice: https://jh-fcc-backend-apis.herokuapp.com/timestamp/
  - Request Header Parser Microservice: https://jh-fcc-backend-apis.herokuapp.com/request-parse/
  - URL Shortener Microservice: https://jh-fcc-backend-apis.herokuapp.com/short-url/
+ - File Metadata Microservice: https://jh-fcc-backend-apis.herokuapp.com/file-metadata/
