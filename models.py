@@ -17,7 +17,11 @@ class Urls(Model):
     class Meta:
         database = DATABASE
 
+class ImageSearches(Model):
+    search_query = CharField()
+    created_at = DateTimeField(default=datetime.now)
+
 def initialize():
     DATABASE.connect()
-    DATABASE.create_tables([Urls], safe=True)
+    DATABASE.create_tables([Urls, ImageSearches], safe=True)
     DATABASE.close()
