@@ -105,6 +105,9 @@ def check_url(long_url):
 
 	return result != None
 
+@app.route('/short-url')
+def url_shortener_index():
+	return render_template('url-shortener.html')
 
 @app.route('/short-url/<long_url>')
 def url_shortener(long_url):
@@ -124,7 +127,7 @@ def url_shortener(long_url):
 		"short_url": request.url_root + 'r/' + short_url
 	}
 
-	return render_template('url-shortener.html', url_data=json.dumps(url_dict))
+	return json.dumps(url_dict)
 
 
 @app.route('/r/<short_url>')

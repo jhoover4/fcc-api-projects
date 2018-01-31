@@ -10,11 +10,13 @@ function getClientInfo(){
   const userAgentInfo = navigator.userAgent;
 
   const reSoftware = /\(.*?\)/;
-  const reIpaddress = /[0-9]{2}\.[0-9]{1}\.[0-9]{4}.* /;
+  const reIpaddress = /[0-9]{2}\.[0-9]{1}\.[0-9]{4}.*/;
 
+  console.log(reIpaddress.exec(userAgentInfo))
 
   let browserParser = {
-    "ipaddress": reIpaddress.exec(userAgentInfo)[0].trim(),
+    //some browser don't track ip
+    "ipaddress": reIpaddress.exec(userAgentInfo) ? reIpaddress.exec(userAgentInfo)[0].trim() : "Not tracking",
     "language": navigator.language,
     "software": reSoftware.exec(userAgentInfo)[0].replace('\(', '').replace('\)', '')
   }

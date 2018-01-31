@@ -3,5 +3,19 @@
 {% block title %}URL Shortener Microservice{% endblock %}
 
 {% block content %}
-  {{ url_data }}
+<form>
+  Url to Shorten:</br>
+  <input name="query-input" action="" id="query-input"></input></br>
+  <button id="query">Go</button>
+</form>
+<script>
+  formButton = document.getElementById("query");
+  formInput = document.getElementById("query-input");
+  formButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (formInput.value){
+      window.location.href = '/short-url/' + formInput.value;
+    }
+  }, false);
+</script>
 {% endblock %}
