@@ -22,8 +22,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def before_request():
 	"""Connecting to peewee db"""
 	g.db = models.DATABASE
-	g.db.connect()
-
+	try:
+		g.db.connect()
+	except:
+		pass
 
 @app.after_request
 def after_request(response):
@@ -36,6 +38,9 @@ def after_request(response):
 def index():
 	return render_template('index.html')
 
+@app.route('/timestamp')
+def timestamp_index():
+	return render_template('timestamp.html')
 
 @app.route('/timestamp/<timestamp>')
 def time_api(timestamp):
@@ -64,7 +69,7 @@ def time_api(timestamp):
 			data['unix'] = None
 			data['natural'] = None
 
-	return render_template('timestamp.html', timestamp_data=json.dumps(data))
+	return json.dumps(data)
 
 
 @app.route('/request-parse')
@@ -136,6 +141,10 @@ def redirect_short_url(short_url):
 
 # begin image search abstraction routes and functions. Should probably move this to new file/folder at some point
 
+@app.route('/image-search')
+def image_search_index():
+	return render_template('image-search.html')
+
 def save_image_query(query):
 	new_query_entry = models.ImageSearches(search_query=query)
 	new_query_entry.save()
@@ -158,9 +167,10 @@ def image_searches():
 		final_list = []
 
 		recent_searches = models.ImageSearches.select()
-		for search in recent_searches():
-			final_list.append({'query': recent_searches.search_query
-							   'when': recent_searches.created_at
+		# import pdb; pdb.set_trace()
+		for search in recent_searches:
+			final_list.append({'query': search.search_query,
+							   'when': datetime.strftime(search.created_at, '%x %X')
 							   })
 
 		return json.dumps(final_list)
@@ -172,7 +182,7 @@ def allowed_file(filename):
 		   filename.rsplit('.', 1)[1].lower() in ALLOWED_FILE_EXTENSIONS
 
 
-@app.route('/file-metadata/', methods=['GET', 'POST'])
+@app.route('/file-metadata', methods=['GET', 'POST'])
 def upload_file():
 	if request.method == 'POST':
 		# check if the post request has the file part
