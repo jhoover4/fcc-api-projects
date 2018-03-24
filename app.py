@@ -1,14 +1,16 @@
-import json, re, os
+import json
+import re
+import os
 from datetime import datetime
 
-from flask import Flask, g, render_template, request, redirect, flash
+from flask import Flask, g, render_template, request, redirect, flash, jsonify
 from werkzeug.utils import secure_filename
 import requests
 
 import models
 
 DEBUG = True
-ALLOWED_FILE_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_FILE_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 UPLOAD_FOLDER = '/uploads'
 SECRET = 'ASDF!@#$5%$@#$%fasdf'
 
@@ -20,199 +22,239 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.before_request
 def before_request():
-	"""Connecting to peewee db"""
-	g.db = models.DATABASE
-	try:
-		g.db.connect()
-	except:
-		pass
+    """Connecting to peewee db."""
+
+    g.db = models.DATABASE
+    try:
+        g.db.connect()
+    except:
+        pass
+
 
 @app.after_request
 def after_request(response):
-	"""Disconnecting from peewee db"""
-	g.db.close()
-	return response
+    """Disconnecting from peewee db."""
+
+    g.db.close()
+    return response
 
 
 @app.route('/')
 def index():
-	return render_template('index.html')
+    """List of all API endpoints available."""
+
+    return render_template('index.html')
+
 
 @app.route('/timestamp')
 def timestamp_index():
-	return render_template('timestamp.html')
+    """Use timestamp API with HTML form."""
+
+    return render_template('timestamp.html')
+
 
 @app.route('/timestamp/<timestamp>')
 def time_api(timestamp):
-	data = {'timestamp_received': timestamp, 'unix': '', 'natural': ''}
+    """Convert timestamp using API."""
 
-	if timestamp.isdigit():
-		try:
-			date_obj = datetime.fromtimestamp(int(timestamp))
-			data['natural'] = datetime.strftime(date_obj, '%B %d, %Y')
-			data['unix'] = datetime.timestamp(date_obj)
+    data = {'timestamp_received': timestamp, 'unix': '', 'natural': ''}
 
-		except ValueError:
-			data['unix'] = None
-			data['natural'] = None
+    if timestamp.isdigit():
+        try:
+            date_obj = datetime.fromtimestamp(int(timestamp))
+            data['natural'] = datetime.strftime(date_obj, '%B %d, %Y')
+            data['unix'] = datetime.timestamp(date_obj)
 
-		except OSError:
-			data['unix'] = None
-			data['natural'] = None
-	else:
-		try:
-			date_obj = datetime.strptime(timestamp, '%B %d, %Y')
-			data['natural'] = datetime.strftime(date_obj, '%B %d, %Y')
-			data['unix'] = datetime.timestamp(date_obj)
+        except ValueError:
+            data['unix'] = None
+            data['natural'] = None
 
-		except ValueError:
-			data['unix'] = None
-			data['natural'] = None
+        except OSError:
+            data['unix'] = None
+            data['natural'] = None
+    else:
+        try:
+            date_obj = datetime.strptime(timestamp, '%B %d, %Y')
+            data['natural'] = datetime.strftime(date_obj, '%B %d, %Y')
+            data['unix'] = datetime.timestamp(date_obj)
 
-	return json.dumps(data)
+        except ValueError:
+            data['unix'] = None
+            data['natural'] = None
+
+    return jsonify(data)
 
 
 @app.route('/request-parse')
 def request_header_api():
-	return render_template('request-parse.html')
+    """Retrieve information on your browser."""
+
+    return render_template('request-parse.html')
 
 
 # begin short_url routes and functions. Should probably move this to new file/folder at some point
 
 def get_long_url(long_url):
-	try:
-		return models.Urls.get(models.Urls.original_url == long_url)
-	except models.DoesNotExist:
-		return None
+    """Retrieve long url from database."""
+
+    try:
+        return models.Urls.get(models.Urls.original_url == long_url)
+    except models.DoesNotExist:
+        return None
 
 
 def get_short_url(short_url):
-	try:
-		return models.Urls.get(models.Urls.shortened_url == short_url)
-	except models.DoesNotExist:
-		return None
+    """Retrieve short url from database."""
+
+    try:
+        return models.Urls.get(models.Urls.shortened_url == short_url)
+    except models.DoesNotExist:
+        return None
 
 
 def create_url(long_url):
-	new_url_entry = models.Urls(original_url=long_url)
-	new_url_entry.save()
+    """Add long url to database."""
 
-	return new_url_entry.shortened_url
+    new_url_entry = models.Urls(original_url=long_url)
+    new_url_entry.save()
+
+    return new_url_entry.shortened_url
 
 
 def check_url(long_url):
-	result = re.match('^(https?:\/\/)?(www\.)?.*\..*', long_url)
+    """Validate inputted long url."""
 
-	return result != None
+    result = re.match('^(https?:\/\/)?(www\.)?.*\..*', long_url)
+
+    return result is not None
+
 
 @app.route('/short-url')
 def url_shortener_index():
-	return render_template('url-shortener.html')
+    """Create short url with HTML form."""
+
+    return render_template('url-shortener.html')
+
 
 @app.route('/short-url/<long_url>')
 def url_shortener(long_url):
-	short_url = ''
+    """Route for url shortener API."""
 
-	if check_url(long_url) == False:
-		return 'Please provide a valid url.'
+    if check_url(long_url) is False:
+        return 'Please provide a valid url.'
 
-	if get_long_url(long_url) == None:
-		short_url = create_url(long_url)
-	else:
-		url_obj = get_long_url(long_url)
-		short_url = url_obj._data['shortened_url']
+    if get_long_url(long_url) is None:
+        short_url = create_url(long_url)
+    else:
+        url_obj = get_long_url(long_url)
+        short_url = url_obj._data['shortened_url']
 
-	url_dict = {
-		"original_url": long_url,
-		"short_url": request.url_root + 'r/' + short_url
-	}
+    url_dict = {
+        "original_url": long_url,
+        "short_url": request.url_root + 'r/' + short_url
+    }
 
-	return json.dumps(url_dict)
+    return json.dumps(url_dict)
 
 
 @app.route('/r/<short_url>')
 def redirect_short_url(short_url):
-	url_obj = get_short_url(short_url)
+    """Use short url to redirect to long url in database."""
 
-	if url_obj == None:
-		return "Your short url does not exist. Please <a 'href=/short-url/'>create one</a>."
-	else:
-		redirect_url = 'http://' + url_obj._data['original_url']
+    url_obj = get_short_url(short_url)
 
-		return redirect(redirect_url, code=302)
+    if url_obj is None:
+        return "Your short url does not exist. Please <a 'href=/short-url/'>create one</a>."
+    else:
+        redirect_url = 'http://' + url_obj._data['original_url']
+
+        return redirect(redirect_url, code=302)
 
 
 # begin image search abstraction routes and functions. Should probably move this to new file/folder at some point
 
 @app.route('/image-search')
 def image_search_index():
-	return render_template('image-search.html')
+    """Perform image search through HTML form."""
+
+    return render_template('image-search.html')
+
 
 def save_image_query(query):
-	new_query_entry = models.ImageSearches(search_query=query)
-	new_query_entry.save()
+    new_query_entry = models.ImageSearches(search_query=query)
+    new_query_entry.save()
+
 
 @app.route('/image-search/q/<image_query>')
 def image_search(image_query):
-	offset = 10
-	save_image_query(image_query)
+    offset = 10
+    save_image_query(image_query)
 
-	r = requests.get('https://www.googleapis.com/customsearch/v1?q={0}'.format(image_query) +
-					 '&num=10&cx=016705203389166446407:rqzbcag_hmc&alt=json&key=AIzaSyA6IdmbpfRWx_dWR0y_DugrbBvalu43yxQ' +
-					 '&start={0}'.format(offset))
+    r = requests.get('https://www.googleapis.com/customsearch/v1?q={0}'.format(image_query) +
+                     '&num=10&cx=016705203389166446407:rqzbcag_hmc&alt=json&key=' +
+                     'AIzaSyA6IdmbpfRWx_dWR0y_DugrbBvalu43yxQ' +
+                     '&start={0}'.format(offset))
 
-	data = json.loads(r.text)['items']
+    data = json.loads(r.text)['items']
 
-	return json.dumps(data)
+    return jsonify(data)
+
 
 @app.route('/image-search/recent/')
 def image_searches():
-		final_list = []
+    """Returns images for image API."""
 
-		recent_searches = models.ImageSearches.select()
-		# import pdb; pdb.set_trace()
-		for search in recent_searches:
-			final_list.append({'query': search.search_query,
-							   'when': datetime.strftime(search.created_at, '%x %X')
-							   })
+    final_list = []
 
-		return json.dumps(final_list)
+    recent_searches = models.ImageSearches.select()
+    # import pdb; pdb.set_trace()
+    for search in recent_searches:
+        final_list.append({'query': search.search_query,
+                           'when': datetime.strftime(search.created_at, '%x %X')
+                           })
+
+    return jsonify(final_list)
+
 
 # begin file metadata routes and functions. Should probably move this to new file/folder at some point
 
 def allowed_file(filename):
-	return '.' in filename and \
-		   filename.rsplit('.', 1)[1].lower() in ALLOWED_FILE_EXTENSIONS
+    """Checks if file uploaded is allowed."""
+
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_FILE_EXTENSIONS
 
 
 @app.route('/file-metadata', methods=['GET', 'POST'])
 def upload_file():
-	if request.method == 'POST':
-		# check if the post request has the file part
-		if 'file' not in request.files:
-			flash('No file detected!')
-			return redirect(request.url)
-		file = request.files['file']
+    """Upload file route for file upload API."""
 
-		# if user does not select file, submit a empty part without filename
-		if file.filename == '':
-			flash('No selected file')
-			return redirect(request.url)
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file detected!')
+            return redirect(request.url)
+        file = request.files['file']
 
-		if file and allowed_file(file.filename):
-			filename = secure_filename(file.filename)
-			file_path = app.root_path + '\\uploads\\' + filename
-			file.save(file_path)
+        # if user does not select file, submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
 
-			statinfo = os.stat(file_path)
-			file_size = {'size': statinfo.st_size}
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = app.root_path + '\\uploads\\' + filename
+            file.save(file_path)
 
-			os.remove(file_path)
+            statinfo = os.stat(file_path)
+            file_size = {'size': statinfo.st_size}
 
-			return json.dumps(file_size)
-	return render_template('file-metadata.html')
+            os.remove(file_path)
+
+            return jsonify(file_size)
+    return render_template('file-metadata.html')
 
 
 if __name__ == '__main__':
-	models.initialize()
-	app.run(debug=DEBUG)
+    models.initialize()
+    app.run(debug=DEBUG)
