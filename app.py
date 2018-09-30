@@ -1,23 +1,19 @@
 import json
-import re
 import os
+import re
 from datetime import datetime
 
+import requests
 from flask import Flask, g, render_template, request, redirect, flash, jsonify
 from werkzeug.utils import secure_filename
-import requests
 
+import config
 import models
-
-DEBUG = True
-ALLOWED_FILE_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
-UPLOAD_FOLDER = '/uploads'
-SECRET = 'ASDF!@#$5%$@#$%fasdf'
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.secret_key = SECRET
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.secret_key = config.SECRET
+app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
 
 
 @app.before_request
@@ -46,43 +42,11 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/timestamp')
+@app.route('/forms/timestamp')
 def timestamp_index():
     """Use timestamp API with HTML form."""
 
     return render_template('timestamp.html')
-
-
-@app.route('/timestamp/<timestamp>')
-def time_api(timestamp):
-    """Convert timestamp using API."""
-
-    data = {'timestamp_received': timestamp, 'unix': '', 'natural': ''}
-
-    if timestamp.isdigit():
-        try:
-            date_obj = datetime.fromtimestamp(int(timestamp))
-            data['natural'] = datetime.strftime(date_obj, '%B %d, %Y')
-            data['unix'] = datetime.timestamp(date_obj)
-
-        except ValueError:
-            data['unix'] = None
-            data['natural'] = None
-
-        except OSError:
-            data['unix'] = None
-            data['natural'] = None
-    else:
-        try:
-            date_obj = datetime.strptime(timestamp, '%B %d, %Y')
-            data['natural'] = datetime.strftime(date_obj, '%B %d, %Y')
-            data['unix'] = datetime.timestamp(date_obj)
-
-        except ValueError:
-            data['unix'] = None
-            data['natural'] = None
-
-    return jsonify(data)
 
 
 @app.route('/request-parse')
@@ -222,7 +186,7 @@ def allowed_file(filename):
     """Checks if file uploaded is allowed."""
 
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_FILE_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in config.ALLOWED_FILE_EXTENSIONS
 
 
 @app.route('/file-metadata', methods=['GET', 'POST'])
@@ -257,4 +221,4 @@ def upload_file():
 
 if __name__ == '__main__':
     models.initialize()
-    app.run(debug=DEBUG)
+    app.run(debug=config.DEBUG, host=config.HOST, port=config.PORT)

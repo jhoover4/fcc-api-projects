@@ -1,10 +1,11 @@
-from datetime import datetime
-import string
 import random
+import string
+from datetime import datetime
 
 from peewee import *
 
-DATABASE = SqliteDatabase('sql.db')
+DATABASE = SqliteDatabase('fcc_api.db')
+
 
 class Urls(Model):
     def unique_string_generator(size=6):
@@ -17,9 +18,14 @@ class Urls(Model):
     class Meta:
         database = DATABASE
 
+
 class ImageSearches(Model):
     search_query = CharField()
     created_at = DateTimeField(default=datetime.now)
+
+    class Meta:
+        database = DATABASE
+
 
 def initialize():
     DATABASE.connect()
