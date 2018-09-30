@@ -9,11 +9,14 @@ from werkzeug.utils import secure_filename
 
 import config
 import models
+from resources.timestamp import timestamp_api
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.secret_key = config.SECRET
 app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
+
+app.register_blueprint(timestamp_api)
 
 
 @app.before_request
