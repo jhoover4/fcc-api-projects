@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 import config
 import models
 from resources.timestamp import timestamp_api
+from resources.request_parser import request_parser_api
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -17,6 +18,7 @@ app.secret_key = config.SECRET
 app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
 
 app.register_blueprint(timestamp_api)
+app.register_blueprint(request_parser_api)
 
 
 @app.before_request
@@ -50,13 +52,6 @@ def timestamp_index():
     """Use timestamp API with HTML form."""
 
     return render_template('timestamp.html')
-
-
-@app.route('/request-parse')
-def request_header_api():
-    """Retrieve information on your browser."""
-
-    return render_template('request-parse.html')
 
 
 # begin short_url routes and functions. Should probably move this to new file/folder at some point
