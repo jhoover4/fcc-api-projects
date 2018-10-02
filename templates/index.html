@@ -1,15 +1,54 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/layout.html' %}
 
-{% block title %}Jordan Hoover's FCC API Projects{% endblock %}
+{% block title %}FCC API Projects{% endblock %}
 
 {% block content %}
-<p>You've reached the index page for my freeCodeCamp microservice api projects. To use the microservices, follow the links below.</p>
+    <p class="lead">The apis below are based on projects from <a href='https://learn.freecodecamp.org/' target="_blank">FreeCodeCamp</a>.
+        Find specifications for each by clicking on the link.
+    </p>
 
-<p>A description of the task needed can be found on <a href='https://www.freecodecamp.org'>freeCodeCamp</a>.</p>
-
-<a href="/timestamp">Timestamp API</a><br/>
-<a href="/request-parse">Request Header API</a><br/>
-<a href="/short-url">URL Shortener API</a><br/>
-<a href="/image-search">Image Search API</a><br/>
-<a href="/file-metadata">File Size API</a><br/>
+    <div class="list-group mt-5">
+        <a href="{{ url_for('timestamp_index') }}"
+           class="list-group-item list-group-item-action flex-column align-items-start mb-4">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">Timestamp API</h5>
+            </div>
+            <p class="mb-1">Convert timestamp from unix to GMT and vice-versa.</p>
+        </a>
+        <a href="{{ url_for('request_parser_index') }}"
+           class="list-group-item list-group-item-action flex-column align-items-start mb-4">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">Request Header API</h5>
+            </div>
+            <p class="mb-1">Responds with informations from the requests' header.</p>
+        </a>
+        <a href="{{ url_for('url_shortener_index') }}"
+           class="list-group-item list-group-item-action flex-column align-items-start mb-4">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">URL Shortener API</h5>
+            </div>
+            <p class="mb-1">Provide URLs that can then be found using a created id.</p>
+        </a>
+        <a href="{{ url_for('exercise_tracker_index') }}"
+           class="list-group-item list-group-item-action flex-column align-items-start mb-4">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">Exercise Tracker API</h5>
+            </div>
+            <p class="mb-1">Create users and associate new exercises with them.</p>
+        </a>
+        <a href="{{ url_for('image_search_index') }}"
+           class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">Image Search API</h5>
+            </div>
+            <p class="mb-1">Return Google search api data based on provided input.</p>
+        </a><br>
+        <a href="{{ url_for('upload_file') }}"
+           class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">File Size Service</h5>
+            </div>
+            <p class="mb-1">Returns information on uploaded file.</p>
+        </a>
+    </div>
 {% endblock %}

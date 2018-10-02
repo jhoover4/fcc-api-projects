@@ -1,6 +1,5 @@
 import json
 import os
-import re
 from datetime import datetime
 
 import requests
@@ -51,55 +50,25 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/forms/timestamp')
+@app.route('/timestamp')
 def timestamp_index():
-    """Use timestamp API with HTML form."""
+    """Html page explaining timestamp API."""
 
     return render_template('timestamp.html')
 
 
-# begin short_url routes and functions. Should probably move this to new file/folder at some point
+@app.route('/request-parse')
+def request_parser_index():
+    """Html page explaining request parser API."""
 
-def get_long_url(long_url):
-    """Retrieve long url from database."""
-
-    try:
-        return models.Url.get(models.Url.original_url == long_url)
-    except models.DoesNotExist:
-        return None
+    return render_template('request_parser.html')
 
 
-def get_short_url(short_url):
-    """Retrieve short url from database."""
-
-    try:
-        return models.Url.get(models.Url.shortened_url == short_url)
-    except models.DoesNotExist:
-        return None
-
-
-def create_url(long_url):
-    """Add long url to database."""
-
-    new_url_entry = models.Url(original_url=long_url)
-    new_url_entry.save()
-
-    return new_url_entry.shortened_url
-
-
-def check_url(long_url):
-    """Validate inputted long url."""
-
-    result = re.match('^(https?:\/\/)?(www\.)?.*\..*', long_url)
-
-    return result is not None
-
-
-@app.route('/forms/short-url')
+@app.route('/shorturl')
 def url_shortener_index():
-    """Create short url with HTML form."""
+    """Html page explaining url shortener API."""
 
-    return render_template('url-shortener.html')
+    return render_template('url_shortener.html')
 
 
 @app.route('/api/shorturl/<url_id>')
@@ -114,18 +83,11 @@ def url_shortener_redirect(url_id):
         return redirect(url.original_url)
 
 
-@app.route('/r/<short_url>')
-def redirect_short_url(short_url):
-    """Use short url to redirect to long url in database."""
+@app.route('/exercise')
+def exercise_tracker_index():
+    """Html page explaining exercise tracker API."""
 
-    url_obj = get_short_url(short_url)
-
-    if url_obj is None:
-        return "Your short url does not exist. Please <a 'href=/short-url/'>create one</a>."
-    else:
-        redirect_url = 'http://' + url_obj._data['original_url']
-
-        return redirect(redirect_url, code=302)
+    return render_template('exercise_tracker.html')
 
 
 # begin image search abstraction routes and functions. Should probably move this to new file/folder at some point
@@ -134,7 +96,7 @@ def redirect_short_url(short_url):
 def image_search_index():
     """Perform image search through HTML form."""
 
-    return render_template('image-search.html')
+    return render_template('image_search.html')
 
 
 def save_image_query(query):
@@ -164,7 +126,6 @@ def image_searches():
     final_list = []
 
     recent_searches = models.ImageSearches.select()
-    # import pdb; pdb.set_trace()
     for search in recent_searches:
         final_list.append({'query': search.search_query,
                            'when': datetime.strftime(search.created_at, '%x %X')
@@ -188,10 +149,10 @@ def upload_file():
 
     if request.method == 'POST':
         # check if the post request has the file part
-        if 'file' not in request.files:
+        if 'upfile' not in request.files:
             flash('No file detected!')
             return redirect(request.url)
-        file = request.files['file']
+        file = request.files['upfile']
 
         # if user does not select file, submit a empty part without filename
         if file.filename == '':
@@ -209,7 +170,7 @@ def upload_file():
             os.remove(file_path)
 
             return jsonify(file_size)
-    return render_template('file-metadata.html')
+    return render_template('file_metadata.html')
 
 
 if __name__ == '__main__':

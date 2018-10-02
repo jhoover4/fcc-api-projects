@@ -6,3 +6,4 @@ PORT = 8000
 SECRET = 'ASDF!@#$5%$@#$%fasdf'
 DEFAULT_RATE = "100/hour"
 DATABASE = 'fcc_api.sqlite'
+static_url_path='/static'

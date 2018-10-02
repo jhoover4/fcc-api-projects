@@ -1,0 +1,51 @@
+{% extends 'layouts/api_index_layout.html' %}
+
+{% block title %}Url Shortener API{% endblock %}
+
+{% block endpoints %}
+    <p class="mb-0">API Endpoint: <a
+            href="{{ url_for('resources.url_shortener.url_shortener_new') }}">{{ url_for('resources.url_shortener.url_shortener_new', _external=True) }}</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: POST</p>
+    <p class="mb-0 mt-3">API Endpoint:
+        <a href="{{ url_for('.url_shortener_redirect', url_id=1) }}">{{ url_for('.url_shortener_redirect', _external=True, url_id='id') }}</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: GET (will redirect)</p>
+{% endblock endpoints %}
+
+{% block user_stories %}
+    <li>I can POST a URL to [project_url]/api/shorturl/new and I will receive a shortened URL in the JSON
+        response.
+    </li>
+    <li>If I pass an invalid URL that doesn't follow the http(s)://www.example.com(/more/routes) format, the JSON
+        response will contain an error like {"error":"invalid URL"}.
+    </li>
+    <li>The url must point to a live and valid site, check with DNS.</li>
+    <li>Date strings must be compliant with ISO-8601 (e.g. "2016-11-20").</li>
+    <li>When I visit the shortened URL, it will redirect me to my original link.</li>
+    <li>The short url output will use the id and look like [project_url]/api/shorturl/{{ '<id>' }}.</li>
+{% endblock user_stories %}
+
+{% block output %}
+    {% raw %}
+    {"original_url":"www.google.com", "short_url":1}
+    {% endraw %}
+{% endblock output %}
+
+{% block forms %}
+    <h4 class="mt-3">Use with HTML Form:</h4>
+    <div class="row">
+        <div class="col-lg-6">
+            <form method="post" action="{{ url_for('resources.url_shortener.url_shortener_new') }}">
+                <fieldset class="form-group">
+                    <label for="url">Enter Url</label>
+                    <input name="url" class="form-control" id="url"
+                           placeholder="Enter valid url">
+                </fieldset>
+                <button type="submit" class="btn btn-secondary">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock forms %}
+
+{% block fcc_link %}https://github.com/freeCodeCamp/boilerplate-project-urlshortener/{% endblock %}

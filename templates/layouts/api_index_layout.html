@@ -1,0 +1,31 @@
+{% extends 'layouts/layout.html' %}
+
+{% block content %}
+    <div class="pl-4">
+        {% block endpoints %}
+        {% endblock endpoints %}
+    </div>
+    <h4>User Stories:</h4>
+    <ol>
+        {% block user_stories %}
+        {% endblock user_stories %}
+    </ol>
+    <h4>Example Output:</h4>
+    <div class="pl-4">
+        <code>
+            {% block output %}
+            {% endblock output %}
+        </code>
+    </div>
+    {% block forms %}
+    {% endblock forms %}
+    <p class="mt-4">Read the original <a href="{% block fcc_link %}{% endblock %}"
+                                         target="_blank">FCC documentation</a>.</p>
+    <div class="row">
+        <div class="col-lg-4 mt-5">
+            <a href="{{ url_for('index') }}">
+                <button type="button" class="btn btn-primary btn-lg btn-block">Return to API Listing</button>
+            </a>
+        </div>
+    </div>
+{% endblock %}

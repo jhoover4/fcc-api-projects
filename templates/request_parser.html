@@ -1,0 +1,29 @@
+{% extends 'layouts/api_index_layout.html' %}
+
+{% block title %}Request Parser API{% endblock %}
+
+{% block endpoints %}
+    <p class="mb-0">API Endpoint: <a
+            href="{{ url_for('resources.request_parser.request_parser') }}">{{ url_for('resources.request_parser.request_parser') }}</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: GET</p>
+{% endblock endpoints %}
+
+{% block user_stories %}
+    <li>The API endpoint is GET [base url]/api/whoami.</li>
+    <li>I can get the IP address, preferred languages (from header Accept-Language)
+        and system infos for my device.
+    </li>
+{% endblock user_stories %}
+
+{% block output %}
+    {% raw %}
+    {
+    "ipaddress":"159.20.14.100",
+    "language":"en-US,en;q=0.5",
+    "software":"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:50.0) Gecko/20100101 Firefox/50.0"
+    }
+    {% endraw %}
+{% endblock output %}
+
+{% block fcc_link %}https://dandelion-roar.glitch.me{% endblock %}

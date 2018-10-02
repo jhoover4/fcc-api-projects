@@ -1,0 +1,119 @@
+{% extends 'layouts/api_index_layout.html' %}
+
+{% block title %}Exercise Tracker API{% endblock %}
+
+{% block endpoints %}
+    <p class="mb-0">API Endpoint: <a
+            href="{{ url_for('resources.exercise.exercise') }}">{{ url_for('resources.exercise.exercise', _external=True) }}</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: POST</p>
+    <p class="mb-0 mt-3">API Endpoint:
+        <a href="{{ url_for('resources.exercise.users') }}">{{ url_for('resources.exercise.users', _external=True) }}</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: GET, POST</p>
+    <p class="mb-0 mt-3">API Endpoint:
+        <a href="{{ url_for('resources.exercise.user', userId=1) }}">{{ url_for('.index', _external=True) }}api/exercise/log?&lt;userId&gt;[&from][&to][&limit]</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: GET</p>
+{% endblock endpoints %}
+
+{% block user_stories %}
+    <li>I can create a user by posting form data username to /api/exercise/new-user and returned will be an object
+        with username and _id.
+    </li>
+    <li>I can get an array of all users by getting api/exercise/users with the same info as when creating a user.
+    </li>
+    <li>I can add an exercise to any user by posting form data userId(_id), description, duration, and optionally
+        date to
+        /api/exercise/add. If no date supplied it will use current date. Returned will the the user object with also
+        with
+        the exercise fields added.
+    </li>
+    <li>I can retrieve a full exercise log of any user by getting /api/exercise/log with a parameter of userId(_id).
+        Return
+        will be the user object with added array log and count (total exercise count).
+    </li>
+    <li>I can retrieve part of the log of any user by also passing along optional parameters of from & to or limit.
+        (Date
+        format yyyy-mm-dd, limit = int).
+    </li>
+{% endblock user_stories %}
+
+{% block output %}
+    {
+    "_id": "1",
+    "username": "test",
+    'exercises': [
+    {
+    "date": "2018-01-01",
+    "description": "Cardio",
+    "duration": "60"
+    },
+    {
+    "date": "2018-01-03",
+    "description": "Weight lifting",
+    'duration': "70"
+    }
+    ]
+    }
+{% endblock output %}
+
+{% block forms %}
+    <h4 class="mt-3">Use with HTML Form:</h4>
+    <div class="row pl-4">
+        <div class="col-lg-6">
+            <h5>Add User</h5>
+            <form method="post" action="{{ url_for('resources.exercise.users') }}">
+                <fieldset class="form-group">
+                    <label for="username">Username</label>
+                    <input name="username" class="form-control" id="exercise-username"
+                           placeholder="Username must be unique">
+                </fieldset>
+                <button type="submit" class="btn btn-secondary">Submit</button>
+            </form>
+        </div>
+        <div class="col-lg-6">
+            <h5>Add Exercise</h5>
+            <form method="post" action="{{ url_for('resources.exercise.exercise') }}">
+                <fieldset class="form-group">
+                    <label for="userId">UserId</label>
+                    <input name="userId" class="form-control" id="exercise-userId"
+                           placeholder="Id of created user" type="number">
+                    <label for="description">Description</label>
+                    <input name="description" class="form-control" id="exercise-description"
+                           placeholder="Short description of exercise">
+                    <label for="duration">Duration (mins)</label>
+                    <input name="duration" class="form-control" id="exercise-duration"
+                           placeholder="Duration in minutes">
+                    <label for="date">Date</label>
+                    <input name="date" class="form-control" id="exercise-date" type="date">
+                </fieldset>
+                <button type="submit" class="btn btn-secondary">Submit</button>
+            </form>
+        </div>
+    </div>
+    <div class="row pl-4 mt-4 mb-4">
+        <div class="col-lg-6">
+            <h5>Get Exercise Log</h5>
+            <form id="exercise-log-form" method="get" action="{{ url_for('.index') }}api/exercise/log">
+                <fieldset class="form-group">
+                    <label for="exercise-userId">UserId</label>
+                    <input class="form-control" id="exercise-log-userId"
+                           placeholder="Id of created user" type="number">
+                    <label for="to">From Date</label>
+                    <input name="to" class="form-control" id="exercise-to"
+                           type="date">
+                    <label for="from">To Date</label>
+                    <input name="from" class="form-control" id="exercise-from"
+                           type="date">
+                    <label for="limit">Limit</label>
+                    <input name="date" class="form-control" id="exercise-limit" type="number"
+                           placeholder="Limit returned exercises">
+                </fieldset>
+                <button type="submit" class="btn btn-secondary">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock forms %}
+
+{% block fcc_link %}https://github.com/freeCodeCamp/boilerplate-project-exercisetracker/{% endblock %}

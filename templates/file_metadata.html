@@ -1,0 +1,25 @@
+{% extends 'layouts/api_index_layout.html' %}
+
+{% block title %}File Metadata Service{% endblock %}
+
+{% block user_stories %}
+    <li>
+        I can submit a form that includes a file upload.
+    </li>
+    <li>
+        The from file input field has the "name" attribute set to "upfile". We rely on this in testing.
+    </li>
+    <li>
+        When I submit something, I will receive the file name and size in bytes within the JSON response.
+    </li>
+{% endblock user_stories %}
+
+{% block forms %}
+    <h4>Upload a File:</h4>
+    <form method=post enctype=multipart/form-data>
+        <input type=file name=upfile><br>
+        <input class="mt-3 btn btn-secondary" type=submit value=Upload>
+    </form>
+{% endblock forms %}
+
+{% block fcc_link %}https://github.com/freeCodeCamp/boilerplate-project-filemetadata/{% endblock %}

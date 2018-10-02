@@ -1,21 +1,27 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/api_index_layout.html' %}
 
 {% block title %}Timestamp API{% endblock %}
 
-{% block content %}
-<form>
-  Make a Query:</br>
-  <input name="query-input" action="" id="query-input"></input></br>
-  <button id="query">Go</button>
-</form>
-<script>
-  formButton = document.getElementById("query");
-  formInput = document.getElementById("query-input");
-  formButton.addEventListener('click', function(e) {
-    e.preventDefault();
-    if (formInput.value){
-      window.location.href = '/timestamp/' + formInput.value;
-    }
-  }, false);
-</script>
-{% endblock %}
+{% block endpoints %}
+    <p class="mb-0">API Endpoint: <a
+            href="{{ url_for('resources.timestamp.timestamp') }}">{{ url_for('resources.timestamp.timestamp') }}/{{ '<date_string>' }}</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: GET</p>
+{% endblock endpoints %}
+
+{% block user_stories %}
+    <li>The API endpoint is GET [project_url]/api/timestamp/{{ '<date_string>' }}.</li>
+    <li>A date string is valid if can be successfully parsed as a date. Note that the unix timestamp
+        needs to be an integer (not a string) specifying milliseconds.
+    </li>
+    <li>If the date string is empty the service uses the current timestamp.</li>
+    <li>Date strings must be compliant with ISO-8601 (e.g. "2016-11-20").</li>
+{% endblock user_stories %}
+
+{% block output %}
+    {% raw %}
+    {"unix": 1479663089000, "utc": "Sun, 20 Nov 2016 17:31:29 GMT"}
+    {% endraw %}
+{% endblock output %}
+
+{% block fcc_link %}https://curse-arrow.glitch.me{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}Image Search API{% endblock %}
+
+{% block content %}
+    <h4>Make a Query:</h4>
+    <form>
+        <input name="query-input" action="" id="query-input"></input></br>
+        <button id="query">Go</button>
+    </form>
+    <h4>View Recent Queries:</h4>
+    <a href="{{ url_for('image_searches') }}">
+        <Button>Go</button>
+    </a>
+    <script>
+        formButton = document.getElementById("query");
+        formInput = document.getElementById("query-input");
+        formButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (formInput.value) {
+                window.location.href = '/image-search/q/' + formInput.value;
+            }
+        }, false);
+    </script>
+{% endblock %}
