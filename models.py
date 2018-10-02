@@ -27,7 +27,28 @@ class ImageSearches(Model):
         database = DATABASE
 
 
+class ExerciseUser(Model):
+    username = CharField(unique=True)
+    created_at = DateTimeField(default=datetime.now)
+
+    class Meta:
+        database = DATABASE
+
+
+class Exercise(Model):
+    """Exercises that can be associated with each exercise user."""
+
+    exercise_user = ForeignKeyField(ExerciseUser, backref='exercises')
+    description = CharField()
+    duration = IntegerField()
+    date = DateField(null=True)
+    created_at = DateTimeField(default=datetime.now)
+
+    class Meta:
+        database = DATABASE
+
+
 def initialize():
     DATABASE.connect()
-    DATABASE.create_tables([Urls, ImageSearches], safe=True)
+    DATABASE.create_tables([Urls, ImageSearches, ExerciseUser, Exercise], safe=True)
     DATABASE.close()

@@ -9,8 +9,9 @@ from werkzeug.utils import secure_filename
 
 import config
 import models
-from resources.timestamp import timestamp_api
+from resources.exercise import exercise_api
 from resources.request_parser import request_parser_api
+from resources.timestamp import timestamp_api
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -19,6 +20,7 @@ app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
 
 app.register_blueprint(timestamp_api)
 app.register_blueprint(request_parser_api)
+app.register_blueprint(exercise_api)
 
 
 @app.before_request
