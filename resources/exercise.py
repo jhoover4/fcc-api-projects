@@ -1,6 +1,6 @@
 import datetime
 
-from flask import Blueprint, request
+from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, fields, marshal, url_for, marshal_with, abort
 
 import models

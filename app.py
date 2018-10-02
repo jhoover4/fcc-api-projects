@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 
 import requests
-from flask import Flask, g, render_template, request, redirect, flash, jsonify
+from flask import Flask, g, render_template, request, redirect, flash, jsonify, abort
 from werkzeug.utils import secure_filename
 
 import config
@@ -12,6 +12,7 @@ import models
 from resources.exercise import exercise_api
 from resources.request_parser import request_parser_api
 from resources.timestamp import timestamp_api
+from resources.url_shortener import url_shortener_api
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -21,6 +22,7 @@ app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
 app.register_blueprint(timestamp_api)
 app.register_blueprint(request_parser_api)
 app.register_blueprint(exercise_api)
+app.register_blueprint(url_shortener_api)
 
 
 @app.before_request
@@ -62,7 +64,7 @@ def get_long_url(long_url):
     """Retrieve long url from database."""
 
     try:
-        return models.Urls.get(models.Urls.original_url == long_url)
+        return models.Url.get(models.Url.original_url == long_url)
     except models.DoesNotExist:
         return None
 
@@ -71,7 +73,7 @@ def get_short_url(short_url):
     """Retrieve short url from database."""
 
     try:
-        return models.Urls.get(models.Urls.shortened_url == short_url)
+        return models.Url.get(models.Url.shortened_url == short_url)
     except models.DoesNotExist:
         return None
 
@@ -79,7 +81,7 @@ def get_short_url(short_url):
 def create_url(long_url):
     """Add long url to database."""
 
-    new_url_entry = models.Urls(original_url=long_url)
+    new_url_entry = models.Url(original_url=long_url)
     new_url_entry.save()
 
     return new_url_entry.shortened_url
@@ -93,32 +95,23 @@ def check_url(long_url):
     return result is not None
 
 
-@app.route('/short-url')
+@app.route('/forms/short-url')
 def url_shortener_index():
     """Create short url with HTML form."""
 
     return render_template('url-shortener.html')
 
 
-@app.route('/short-url/<long_url>')
-def url_shortener(long_url):
+@app.route('/api/shorturl/<url_id>')
+def url_shortener_redirect(url_id):
     """Route for url shortener API."""
 
-    if check_url(long_url) is False:
-        return 'Please provide a valid url.'
-
-    if get_long_url(long_url) is None:
-        short_url = create_url(long_url)
+    try:
+        url = models.Url.get(models.Url.id == url_id)
+    except models.DoesNotExist:
+        abort(404)
     else:
-        url_obj = get_long_url(long_url)
-        short_url = url_obj._data['shortened_url']
-
-    url_dict = {
-        "original_url": long_url,
-        "short_url": request.url_root + 'r/' + short_url
-    }
-
-    return json.dumps(url_dict)
+        return redirect(url.original_url)
 
 
 @app.route('/r/<short_url>')

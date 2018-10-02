@@ -1,5 +1,3 @@
-import random
-import string
 from datetime import datetime
 
 from peewee import *
@@ -7,12 +5,8 @@ from peewee import *
 DATABASE = SqliteDatabase('fcc_api.db')
 
 
-class Urls(Model):
-    def unique_string_generator(size=6):
-        return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(size))
-
+class Url(Model):
     original_url = CharField()
-    shortened_url = CharField(unique=True, default=unique_string_generator())
     created_at = DateTimeField(default=datetime.now)
 
     class Meta:
@@ -50,5 +44,5 @@ class Exercise(Model):
 
 def initialize():
     DATABASE.connect()
-    DATABASE.create_tables([Urls, ImageSearches, ExerciseUser, Exercise], safe=True)
+    DATABASE.create_tables([Url, ImageSearches, ExerciseUser, Exercise], safe=True)
     DATABASE.close()

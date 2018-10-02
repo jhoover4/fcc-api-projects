@@ -3,7 +3,7 @@ import unittest
 import models
 from app import app
 
-MODELS = [models.Urls, models.ImageSearches, models.ExerciseUser, models.Exercise]
+MODELS = [models.Url, models.ImageSearches, models.ExerciseUser, models.Exercise]
 
 
 class BaseTestCase(unittest.TestCase):
