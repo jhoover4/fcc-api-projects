@@ -4,13 +4,25 @@ from app import app
 from resources.request_parser import RequestParser
 
 
-class TestRequestParserApi(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
     def setUp(self):
         """Create test user, and setup test app."""
 
         app.testing = True
         self.app = app.test_client()
 
+
+class TestRequestParserView(BaseTestCase):
+
+    def test_index(self):
+        """Test that the description view for this api is running."""
+
+        url = self.app.get('/request-parser')
+        self.assertTrue(url.data)
+        self.assertEqual(url.status_code, 200)
+
+
+class TestRequestParserApi(BaseTestCase):
     def test_route(self):
         response = self.app.get("/api/whoami")
 

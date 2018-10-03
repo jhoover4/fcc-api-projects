@@ -56,7 +56,7 @@ def timestamp_index():
     return render_template('timestamp.html')
 
 
-@app.route('/request-parse')
+@app.route('/request-parser')
 def request_parser_index():
     """Html page explaining request parser API."""
 

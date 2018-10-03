@@ -6,6 +6,15 @@ import pytz
 from test_app import BaseTestCase
 
 
+class TestTimestampView(BaseTestCase, unittest.TestCase):
+    def test_index(self):
+        """Test that the description view for this api is running."""
+
+        url = self.app.get('/timestamp')
+        self.assertTrue(url.data)
+        self.assertEqual(url.status_code, 200)
+
+
 class TestTimestampApi(BaseTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()

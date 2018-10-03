@@ -7,6 +7,15 @@ import models
 from resources.url_shortener import valid_url
 
 
+class TestUrlShortenerView(BaseTestCase, unittest.TestCase):
+    def test_index(self):
+        """Test that the description view for this api is running."""
+
+        url = self.app.get('/shorturl')
+        self.assertTrue(url.data)
+        self.assertEqual(url.status_code, 200)
+
+
 class UrlCreationTests(BaseTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
