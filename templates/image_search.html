@@ -1,25 +1,51 @@
-{% extends 'layouts/layout.html' %}
+{% extends 'layouts/api_index_layout.html' %}
 
 {% block title %}Image Search API{% endblock %}
 
-{% block content %}
-    <h4>Make a Query:</h4>
-    <form>
-        <input name="query-input" action="" id="query-input"></input></br>
-        <button id="query">Go</button>
-    </form>
-    <h4>View Recent Queries:</h4>
-    <a href="{{ url_for('image_searches') }}">
-        <Button>Go</button>
-    </a>
-    <script>
-        formButton = document.getElementById("query");
-        formInput = document.getElementById("query-input");
-        formButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            if (formInput.value) {
-                window.location.href = '/image-search/q/' + formInput.value;
-            }
-        }, false);
-    </script>
-{% endblock %}
+{% block endpoints %}
+    <p class="mb-0">API Endpoint: <a
+            href="{{ url_for('resources.image_search.image_search', query='cats') }}">{{ url_for('resources.image_search.image_search', _external=True) }}/&lt;query&gt;[?limit]</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: GET</p>
+    <p class="mb-0">API Endpoint: <a
+            href="{{ url_for('resources.image_search.search_history') }}">{{ url_for('resources.image_search.search_history', _external=True) }}</a>
+    </p>
+    <p class="mt-0">Available HTTP methods: GET</p>
+{% endblock endpoints %}
+
+{% block user_stories %}
+    <li>I can use the Google search API to get image search data.</li>
+    <li>I can paginate through the responses by adding an offset parameter to the URL.</li>
+    <li>I can get a list of the most recently submitted search strings.</li>
+{% endblock user_stories %}
+
+{% block output %}
+    [
+    {
+    "query": "mouse",
+    "when": "10/02/18 18:39:20"
+    },
+    {
+    "query": "cats",
+    "when": "10/02/18 20:52:38"
+    }
+    ]
+{% endblock output %}
+
+{% block forms %}
+    <h4 class="mt-3">Use with HTML Form:</h4>
+    <div class="row pl-4">
+        <div class="col-lg-6">
+            <h5>Submit Query</h5>
+            <form method="get" action="{{ url_for('resources.image_search.image_search') }}">
+                <fieldset class="form-group">
+                    <label for="query">Query String</label><br>
+                    <input name="query" id="query-input" placeholder="cats">
+                </fieldset>
+                <button type="submit" class="btn btn-secondary">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock forms %}
+
+{% block fcc_link %}https://www.freecodecamp.com/challenges/image-search-abstraction-layer{% endblock %}

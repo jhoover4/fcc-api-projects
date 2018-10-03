@@ -13,7 +13,7 @@ class Url(Model):
         database = DATABASE
 
 
-class ImageSearches(Model):
+class ImageSearch(Model):
     search_query = CharField()
     created_at = DateTimeField(default=datetime.now)
 
@@ -44,5 +44,5 @@ class Exercise(Model):
 
 def initialize():
     DATABASE.connect()
-    DATABASE.create_tables([Url, ImageSearches, ExerciseUser, Exercise], safe=True)
+    DATABASE.create_tables([Url, ImageSearch, ExerciseUser, Exercise], safe=True)
     DATABASE.close()

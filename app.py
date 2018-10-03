@@ -1,14 +1,12 @@
-import json
 import os
-from datetime import datetime
 
-import requests
 from flask import Flask, g, render_template, request, redirect, flash, jsonify, abort
 from werkzeug.utils import secure_filename
 
 import config
 import models
 from resources.exercise import exercise_api
+from resources.image_search import image_search_api
 from resources.request_parser import request_parser_api
 from resources.timestamp import timestamp_api
 from resources.url_shortener import url_shortener_api
@@ -22,6 +20,7 @@ app.register_blueprint(timestamp_api)
 app.register_blueprint(request_parser_api)
 app.register_blueprint(exercise_api)
 app.register_blueprint(url_shortener_api)
+app.register_blueprint(image_search_api)
 
 
 @app.before_request
@@ -90,51 +89,12 @@ def exercise_tracker_index():
     return render_template('exercise_tracker.html')
 
 
-# begin image search abstraction routes and functions. Should probably move this to new file/folder at some point
-
 @app.route('/image-search')
 def image_search_index():
     """Perform image search through HTML form."""
 
     return render_template('image_search.html')
 
-
-def save_image_query(query):
-    new_query_entry = models.ImageSearches(search_query=query)
-    new_query_entry.save()
-
-
-@app.route('/image-search/q/<image_query>')
-def image_search(image_query):
-    offset = 10
-    save_image_query(image_query)
-
-    r = requests.get('https://www.googleapis.com/customsearch/v1?q={0}'.format(image_query) +
-                     '&num=10&cx=016705203389166446407:rqzbcag_hmc&alt=json&key=' +
-                     'AIzaSyA6IdmbpfRWx_dWR0y_DugrbBvalu43yxQ' +
-                     '&start={0}'.format(offset))
-
-    data = json.loads(r.text)['items']
-
-    return jsonify(data)
-
-
-@app.route('/image-search/recent/')
-def image_searches():
-    """Returns images for image API."""
-
-    final_list = []
-
-    recent_searches = models.ImageSearches.select()
-    for search in recent_searches:
-        final_list.append({'query': search.search_query,
-                           'when': datetime.strftime(search.created_at, '%x %X')
-                           })
-
-    return jsonify(final_list)
-
-
-# begin file metadata routes and functions. Should probably move this to new file/folder at some point
 
 def allowed_file(filename):
     """Checks if file uploaded is allowed."""
