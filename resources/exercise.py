@@ -83,12 +83,31 @@ class UserDetail(Resource):
             location=['form', 'args']
         )
 
+        self.reqparse.add_argument(
+            'userId',
+            type=int,
+            location=['form', 'args']
+        )
+
         super().__init__()
 
-    def get(self, userId):
+    def get(self, userId=None):
         """Returns user information with all exercises optionally filtered."""
 
         args = self.reqparse.parse_args()
+
+        if not userId:
+            userId = args.get('userId')
+
+            if not userId:
+                abort(400, message='userId is required.')
+
+        try:
+            models.ExerciseUser.get(id=userId)
+        except models.ExerciseUser.DoesNotExist:
+            abort(400, message='User with that id does not exist. Please create a new user at ' +
+                               url_for('resources.exercise.users', _external=True) + '.'
+                  )
 
         exercises = models.Exercise.select().where(
             models.Exercise.exercise_user_id == userId
@@ -172,6 +191,7 @@ api.add_resource(
 api.add_resource(
     UserDetail,
     '/api/exercise/log/<userId>',
+    '/api/exercise/log',
     endpoint='user'
 )
 api.add_resource(

@@ -7,17 +7,24 @@ from test_app import BaseTestCase
 import models
 
 
-class TestExerciseApi(BaseTestCase, unittest.TestCase):
+class TestExerciseView(BaseTestCase, unittest.TestCase):
+    def test_check_table(self):
+        assert models.ExerciseUser.table_exists()
+        assert models.Exercise.table_exists()
+
+    def test_index(self):
+        """Test that the description view for this api is running."""
+
+        url = self.app.get('/exercise')
+        self.assertTrue(url.data)
+        self.assertEqual(url.status_code, 200)
+
+
+class TestExerciseUserCreationApi(BaseTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
 
         self.new_user = models.ExerciseUser.create(username='test_user')
-        self.new_exercise = models.Exercise.create(
-            exercise_user_id=1,
-            description='This is a test.',
-            duration=15,
-            date=datetime.date(2017, 1, 1)
-        )
 
     def test_get_users(self):
         """Test api/exercise/users get method."""
@@ -59,6 +66,19 @@ class TestExerciseApi(BaseTestCase, unittest.TestCase):
             'message': 'User with that name already exists.'
         })
 
+
+class TestExerciseApi(BaseTestCase, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.new_user = models.ExerciseUser.create(username='test_user')
+        self.new_exercise = models.Exercise.create(
+            exercise_user_id=1,
+            description='This is a test.',
+            duration=15,
+            date=datetime.date(2017, 1, 1)
+        )
+
     def test_post_new_exercise(self):
         """Test api/exercise/add post method."""
 
@@ -89,10 +109,8 @@ class TestExerciseApi(BaseTestCase, unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(json.loads(response.data), user_dict)
 
-    def test_get_user_detail_id(self):
-        """Test api/exercise/log post method with id attribute only."""
-
-        response = self.app.get('/api/exercise/log/1')
+    def get_user_detail(self, response):
+        """Base abstract method for test_get_user_detail_id and test_get_user_detail_id_in_args tests."""
 
         user_dict = {
             '_id': self.new_user.id,
@@ -108,6 +126,26 @@ class TestExerciseApi(BaseTestCase, unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.data), user_dict)
+
+    def test_get_user_detail_id(self):
+        """Test api/exercise/log post method with id attribute only."""
+
+        self.get_user_detail(self.app.get('/api/exercise/log/1'))
+
+    def test_get_user_detail_id_in_args(self):
+        """Test search is performed with query in parameters."""
+
+        self.get_user_detail(self.app.get('/api/exercise/log', query_string={'userId': 1}))
+
+    def test_get_user_detail_id_in_args_empty(self):
+        """Test error is thrown if query not in url at all."""
+
+        response = self.app.get('/api/exercise/log')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(json.loads(response.data), {
+            'message': 'userId is required.'
+        })
 
     def test_get_user_detail_limit(self):
         """Test api/exercise/log post method with id attribute only."""
@@ -139,8 +177,16 @@ class TestExerciseApi(BaseTestCase, unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.data), user_dict)
 
+    def test_get_user_detail_no_user(self):
+        """Test api/exercise/log get method throws error when no user exists."""
+
+        response = self.app.get('/api/exercise/log/3')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('User with that id does not exist', json.loads(response.data)['message'])
+
     def test_get_user_detail_from(self):
-        """Test api/exercise/log post method with from, to attributes."""
+        """Test api/exercise/log post method with from attribute."""
 
         exercise = models.Exercise.create(
             exercise_user_id=1,
@@ -170,7 +216,7 @@ class TestExerciseApi(BaseTestCase, unittest.TestCase):
         self.assertEqual(json.loads(response.data), user_dict)
 
     def test_get_user_detail_from_to(self):
-        """Test api/exercise/log post method with from, to attributes."""
+        """Test api/exercise/log post method with from and to attributes."""
 
         exercise = models.Exercise.create(
             exercise_user_id=1,

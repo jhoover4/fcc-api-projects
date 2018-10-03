@@ -12,7 +12,7 @@
     </p>
     <p class="mt-0">Available HTTP methods: GET, POST</p>
     <p class="mb-0 mt-3">API Endpoint:
-        <a href="{{ url_for('resources.exercise.user', userId=1) }}">{{ url_for('.index', _external=True) }}api/exercise/log?&lt;userId&gt;[&from][&to][&limit]</a>
+        <a href="{{ url_for('resources.exercise.user', userId=1) }}">{{ url_for('resources.exercise.user') }}/&lt;userId&gt;[&from][&to][&limit]</a>
     </p>
     <p class="mt-0">Available HTTP methods: GET</p>
 {% endblock endpoints %}
@@ -76,7 +76,7 @@
             <h5>Add Exercise</h5>
             <form method="post" action="{{ url_for('resources.exercise.exercise') }}">
                 <fieldset class="form-group">
-                    <label for="userId">UserId</label>
+                    <label for="userId">User Id</label>
                     <input name="userId" class="form-control" id="exercise-userId"
                            placeholder="Id of created user" type="number">
                     <label for="description">Description</label>
@@ -95,10 +95,10 @@
     <div class="row pl-4 mt-4 mb-4">
         <div class="col-lg-6">
             <h5>Get Exercise Log</h5>
-            <form id="exercise-log-form" method="get" action="{{ url_for('.index') }}api/exercise/log">
+            <form id="exercise-log-form" method="get" action="{{ url_for('resources.exercise.user') }}">
                 <fieldset class="form-group">
-                    <label for="exercise-userId">UserId</label>
-                    <input class="form-control" id="exercise-log-userId"
+                    <label for="userId">User Id</label>
+                    <input name="userId" class="form-control" id="exercise-log-userId"
                            placeholder="Id of created user" type="number">
                     <label for="to">From Date</label>
                     <input name="to" class="form-control" id="exercise-to"
